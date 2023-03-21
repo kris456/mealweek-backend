@@ -1,0 +1,11 @@
+
+spring:
+    datasource:
+        url: ${mealer.datasource.url:jdbc:postgresql://localhost:5432/mealer}
+        username: ${mealer.datasource.username:postgres}
+        password: ${mealer.datasource.password:postgres}
+        driver-class-name: org.postgresql.Driver
+
+mealer:
+    jwt:
+        secret: "secret"
