@@ -27,10 +27,10 @@ jobs:
               uses: gradle/gradle-build-action@v2
 
             - name: Run build with Gradle Wrapper
-              run: ./gradlew bootBuildImage
+              run: ./gradlew bootBuildImage --publishImage
 
-            - name: Install flyctl via https://github.com/superfly/flyctl-actions
-              uses: superfly/flyctl-actions/setup-flyctl@master
-
-            - name: Deploy to fly.io
-              run: flyctl deploy --local-only --image ghcr.io/kris456/mealweek-frontend:main -t ${{ env.FLY_API_TOKEN }}
+#            - name: Install flyctl via https://github.com/superfly/flyctl-actions
+#              uses: superfly/flyctl-actions/setup-flyctl@master
+#
+#            - name: Deploy to fly.io
+#              run: flyctl deploy --local-only --image ghcr.io/kris456/mealweek-frontend:main -t ${{ env.FLY_API_TOKEN }}
