@@ -59,7 +59,7 @@ tasks.withType<BootBuildImage>{
         }
     }
 
-    imageName.set("kris456/mealweek-backend")
+    imageName.set("ghrc.io/kris456/mealweek-backend")
 }
 
 
