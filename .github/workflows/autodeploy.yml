@@ -42,8 +42,8 @@ jobs:
             -   name: Push Image to DockerHub
                 run: docker push ghcr.io/kris456/mealweek-backend:latest && docker push ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }}
 
-#            - name: Install flyctl via https://github.com/superfly/flyctl-actions
-#              uses: superfly/flyctl-actions/setup-flyctl@master
-#
-#            - name: Deploy to fly.io
-#              run: flyctl deploy --local-only --image ghcr.io/kris456/mealweek-frontend:main -t ${{ env.FLY_API_TOKEN }}
+            -   name: Install flyctl via https://github.com/superfly/flyctl-actions
+                uses: superfly/flyctl-actions/setup-flyctl@master
+
+            -   name: Deploy to fly.io
+                run: flyctl deploy --image ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }} -t ${{ env.FLY_API_TOKEN }}
