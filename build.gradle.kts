@@ -61,6 +61,7 @@ tasks.withType<BootBuildImage>{
 
     imageName.set("ghrc.io/kris456/mealweek-backend")
 }
+
 version = "0.1.0"
 
 
