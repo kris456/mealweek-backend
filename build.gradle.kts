@@ -55,11 +55,12 @@ tasks.withType<BootBuildImage>{
         publishRegistry {
             url.set("ghcr.io")
             username.set("kris456")
-            password.set(System.getenv("GITHUB_TOKEN"))
+            token.set(System.getenv("GITHUB_TOKEN"))
         }
     }
 
     imageName.set("ghrc.io/kris456/mealweek-backend")
 }
+version = "0.1.0"
 
 
