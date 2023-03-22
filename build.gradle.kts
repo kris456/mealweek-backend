@@ -59,7 +59,7 @@ tasks.withType<BootBuildImage>{
     //     }
     // }
 
-    imageName.set("kris456/mealweek-backend")
+    imageName.set("ghcr.io/kris456/mealweek-backend")
 }
 
 version = "0.1.0"
