@@ -2,7 +2,7 @@ name: autodeploy
 
 on:
     push:
-        branches: ['main']
+        branches: [ 'main' ]
 
 jobs:
     autodeploy:
@@ -16,20 +16,31 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         steps:
-            - uses: actions/checkout@v3
+            -   uses: actions/checkout@v3
 
-            - uses: graalvm/setup-graalvm@v1
-              with:
-                  version: 'latest'
-                  java-version: '17'
-                  components: 'native-image'
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+            -   uses: graalvm/setup-graalvm@v1
+                with:
+                    version: 'latest'
+                    java-version: '17'
+                    components: 'native-image'
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Setup Gradle
-              uses: gradle/gradle-build-action@v2
+            -   name: Setup Gradle
+                uses: gradle/gradle-build-action@v2
 
-            - name: Run build with Gradle Wrapper
-              run: ./gradlew bootBuildImage --publishImage
+            -   name: Run build with Gradle Wrapper
+                run: ./gradlew bootBuildImage
+            -   name: Set Image Tag Version
+                run: echo "TAG_VERSION=$( ./gradlew properties -q | grep "^version:" | awk '{print $2}')" >> $GITHUB_ENV
+
+            -   name: Tag Image
+                run: docker tag ghcr.io/kris456/mealweek-backend:latest ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }}
+
+            -   name: Login to Github Registry
+                run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
+
+            -   name: Push Image to DockerHub
+                run: docker push ghcr.io/kris456/mealweek-backend:latest && docker push ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }}
 
 #            - name: Install flyctl via https://github.com/superfly/flyctl-actions
 #              uses: superfly/flyctl-actions/setup-flyctl@master
