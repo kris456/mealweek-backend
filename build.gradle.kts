@@ -51,17 +51,7 @@ tasks.withType<Test> {
 }
 
 tasks.withType<BootBuildImage>{
-    // docker {
-    //     publishRegistry {
-    //         url.set("ghcr.io")
-    //         username.set("kris456")
-    //         token.set(System.getenv("GITHUB_TOKEN"))
-    //     }
-    // }
-
     imageName.set("ghcr.io/kris456/mealweek-backend")
 }
 
 version = "0.1.0"
-
-
