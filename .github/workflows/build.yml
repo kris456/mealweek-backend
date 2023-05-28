@@ -29,7 +29,7 @@ jobs:
 
     buildAndPush:
         needs: [setup, test]
-        if: github.branch == "master"
+        if: github.ref_name == 'master'
         runs-on: ubuntu-latest
         permissions:
             packages: write
@@ -58,7 +58,7 @@ jobs:
 
     autodeploy:
         runs-on: ubuntu-latest
-        if: github.branch == "master"
+        if: github.ref_name == 'master'
         needs: [setup, test, buildAndPush]
         permissions:
             packages: write
