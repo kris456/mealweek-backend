@@ -1,0 +1,21 @@
+name: "Setup"
+description: "Sets up graalvm, gradle and checks out the repo"
+
+inputs:
+    token:
+        description: "Token for github"
+        required: true
+
+runs:
+    using: "composite"
+    steps:
+        -   uses: actions/checkout@v3
+
+        -   uses: graalvm/setup-graalvm@v1
+            with:
+                version: 'latest'
+                java-version: '17'
+                components: 'native-image'
+                github-token: ${{ inputs.token }}
+
+        -   uses: gradle/gradle-build-action@v2

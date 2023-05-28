@@ -1,34 +1,20 @@
 name: Build
 
-on: [push]
+on: [ push ]
 
 jobs:
-    setup:
-        runs-on: ubuntu-latest
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        steps:
-            -   uses: actions/checkout@v3
-
-            -   uses: graalvm/setup-graalvm@v1
-                with:
-                    version: 'latest'
-                    java-version: '17'
-                    components: 'native-image'
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: Setup Gradle
-                uses: gradle/gradle-build-action@v2
-
     test:
         runs-on: ubuntu-latest
-        needs: setup
         steps:
+
+            -   uses: actions/action@v1
+                with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
             -   name: Test
                 run: ./gradlew test
 
     buildAndPush:
-        needs: [setup, test]
+        needs: [ test ]
         if: github.ref_name == 'master'
         runs-on: ubuntu-latest
         permissions:
@@ -36,10 +22,10 @@ jobs:
         env:
             REGISTRY: ghcr.io
             IMAGE_NAME: ${{ github.repository }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
-            -   name: Test
-                run: ./gradlew test
+            -   uses: actions/action@v1
+                with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: Build native image
                 run: ./gradlew bootBuildImage
@@ -59,12 +45,16 @@ jobs:
     autodeploy:
         runs-on: ubuntu-latest
         if: github.ref_name == 'master'
-        needs: [setup, test, buildAndPush]
+        needs: [ test, buildAndPush ]
         permissions:
             packages: write
         env:
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         steps:
+            -   uses: actions/action@v1
+                with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
+
             -   name: Install flyctl via https://github.com/superfly/flyctl-actions
                 uses: superfly/flyctl-actions/setup-flyctl@master
 
