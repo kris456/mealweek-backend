@@ -21,6 +21,7 @@ jobs:
             packages: write
         env:
             REGISTRY: ghcr.io
+            something: "else"
             IMAGE_NAME: ${{ github.repository }}
         steps:
             -   uses: mealweek-backend/action@v1
