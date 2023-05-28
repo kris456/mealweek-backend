@@ -55,5 +55,10 @@ tasks.withType<BootBuildImage>{
     imageName.set("ghcr.io/kris456/mealweek-backend")
 }
 
+
+extensions.findByName("buildScan")?.withGroovyBuilder {
+    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
+    setProperty("termsOfServiceAgree", "yes")
+}
 version = "0.1.0"
 group= "no.krismobchr"
