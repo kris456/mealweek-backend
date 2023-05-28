@@ -1,20 +1,12 @@
-name: autodeploy
+name: Build
 
-on:
-    push:
-        branches: [ 'main' ]
+on: [push]
 
 jobs:
-    autodeploy:
+    setup:
         runs-on: ubuntu-latest
-        permissions:
-            packages: write
         env:
-            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-            REGISTRY: ghcr.io
-            IMAGE_NAME: ${{ github.repository }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
         steps:
             -   uses: actions/checkout@v3
 
@@ -28,6 +20,24 @@ jobs:
             -   name: Setup Gradle
                 uses: gradle/gradle-build-action@v2
 
+    test:
+        runs-on: ubuntu-latest
+        needs: setup
+        steps:
+            -   name: Test
+                run: ./gradlew test
+
+    buildAndPush:
+        needs: [setup, test]
+        if: github.branch == "master"
+        runs-on: ubuntu-latest
+        permissions:
+            packages: write
+        env:
+            REGISTRY: ghcr.io
+            IMAGE_NAME: ${{ github.repository }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
             -   name: Test
                 run: ./gradlew test
 
@@ -46,6 +56,15 @@ jobs:
             -   name: Push Image to DockerHub
                 run: docker push ghcr.io/kris456/mealweek-backend:latest && docker push ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }}
 
+    autodeploy:
+        runs-on: ubuntu-latest
+        if: github.branch == "master"
+        needs: [setup, test, buildAndPush]
+        permissions:
+            packages: write
+        env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        steps:
             -   name: Install flyctl via https://github.com/superfly/flyctl-actions
                 uses: superfly/flyctl-actions/setup-flyctl@master
 
