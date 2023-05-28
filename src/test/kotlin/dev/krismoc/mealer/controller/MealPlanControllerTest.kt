@@ -62,7 +62,7 @@ class MealPlanControllerTest : AbstractAuthenticatedControllerTest() {
             }
 
         }.andExpect {
-            status { isOk() }
+            status { isCreated() }
             jsonPath("$.id") { value(1) }
             jsonPath("$.weekNumber") { value(1) }
             jsonPath("$.year") { value(2022) }
