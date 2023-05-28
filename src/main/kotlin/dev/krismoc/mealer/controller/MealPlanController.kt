@@ -1,5 +1,9 @@
 package dev.krismoc.mealer.controller
 
+import dev.krismoc.mealer.service.AllFilter
+import dev.krismoc.mealer.service.ByWeek
+import dev.krismoc.mealer.service.ByWeekAndYear
+import dev.krismoc.mealer.service.ByYear
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -9,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import dev.krismoc.mealer.service.MealPlanService
 import dev.krismoc.mealer.service.MealPlanWithMealsDto
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+import java.lang.IllegalArgumentException
 
 @RestController
 @RequestMapping("/api/v1/mealplan")
@@ -19,29 +26,59 @@ class MealPlanController(val mealPlanService: MealPlanService) {
         @RequestParam(required = false) weekNumber: Int?,
         @RequestParam(required = false) year: Int?
     ): List<MealPlanWithMealsDto> {
-        if (weekNumber != null && year != null) {
-            return listOf(mealPlanService.getAllMealPlans(weekNumber, year))
+        val filter = when{
+            weekNumber == null && year == null -> AllFilter
+            year != null && weekNumber != null -> ByWeekAndYear(weekNumber, year)
+            year != null -> ByYear(year)
+            weekNumber != null -> ByWeek(weekNumber)
+            else -> throw IllegalArgumentException("Invalid request params")
         }
-        TODO()
+
+        return mealPlanService.getAllMealPlans(filter)
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun newMealPlan(
-        weekNumber: Int,
-        year: Int
+        @RequestBody payload: NewMealPlanPayload
     ): MealPlanWithMealsDto {
-        return mealPlanService.newMealPlan(weekNumber, year)
+        return mealPlanService.newMealPlan(payload.weekNumber, payload.year)
     }
 
     @PostMapping("/{id}/meals")
-    fun addNewMealToPlan(
+    @ResponseStatus(HttpStatus.CREATED)
+    fun addMealsToPlan(
         @PathVariable id: Int,
-        @RequestBody newMealToPlanRequest: NewMealToPlanRequest
+        @RequestBody newMealToPlanRequest: NewMealToMealPlanRequest
     ): MealPlanWithMealsDto {
-        return mealPlanService.addNewMeal(id, newMealToPlanRequest.name)
+        return mealPlanService.addNewMeal(id, newMealToPlanRequest.name, newMealToPlanRequest.weekDayIso)
     }
 }
 
-data class NewMealToPlanRequest(
-    val name: String
+data class NewMealToMealPlanRequest(
+    val name: String,
+    val weekDayIso: Int
 )
+data class NewMealsToPlan(
+    val mondayMealId: Int,
+    val tuesdayMealId: Int,
+    val wednesdayMealId: Int,
+    val thursdayMealId: Int,
+    val fridayMealId: Int,
+    val saturdayMealId: Int,
+    val sundayMealId: Int,
+)
+data class NewMealPlanPayload(
+    val weekNumber: Int,
+    val year: Int
+)
+
+
+// What to do with mealplans?
+// Is it optimal to have weeks?
+//
+// Suggestion frontend handles multiple weeks, but backend enforces week based plans
+// It is possible to abstract week based plans into something else in frontend if the need arises
+//
+// Changes:
+// Add days

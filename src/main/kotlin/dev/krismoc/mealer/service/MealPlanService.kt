@@ -1,5 +1,6 @@
 package dev.krismoc.mealer.service
 
+import dev.krismoc.mealer.controller.NewMealsToPlan
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -16,29 +17,38 @@ fun <T> Result<T>.getOrElseReturnIfDuplicate(fn: () -> T): T =
         }
     }
 
+sealed class MealplanFilter
+
+object AllFilter : MealplanFilter()
+data class ByWeek(val weekNumber: Int): MealplanFilter()
+data class ByYear(val year: Int) : MealplanFilter()
+data class ByWeekAndYear(val weekNumber: Int, val year: Int): MealplanFilter()
+
 @Service
 class MealPlanService(
     private val mealPlanRepository: MealPlanRepository,
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val userService: UserService
 ) {
 
-    fun getAllMealPlans(weekNumber: Int, year: Int): MealPlanWithMealsDto {
-        val mealPlan = mealPlanRepository.findByWeekNumberAndYear(weekNumber, year)
+    fun getAllMealPlans(filter: MealplanFilter): List<MealPlanWithMealsDto> {
+        val userId = userService.currentUser().id!!
+        val plans = when(filter) {
+            is AllFilter -> mealPlanRepository.findAllByCreatedBy(userId)
+            is ByWeekAndYear -> mealPlanRepository.findByWeeknumberAndYearAndCreatedBy(filter.weekNumber, filter.year, userId)
+            is ByYear -> mealPlanRepository.findByYearAndCreatedBy(filter.year, userId)
+            is ByWeek -> mealPlanRepository.findByWeeknumberAndCreatedBy(filter.weekNumber, userId)
+        }
 
-        return mealPlan.toDto()
+        return plans.map { it.toDto()}
     }
 
     fun newMealPlan(weekNumber: Int, year: Int): MealPlanWithMealsDto {
-        val newPLan = MealPlan(weekNumber = weekNumber, year = year, mealRefs = mutableSetOf())
+        val newPLan = MealPlan(weeknumber = weekNumber, year = year)
         return mealPlanRepository.save(newPLan).toDto()
     }
 
-    fun getAllMeals(): List<Meal> {
-        return mealRepository.findAll().toList()
-    }
-
-    fun addNewMeal(mealPlanId: Int, name: String): MealPlanWithMealsDto {
-        // TODO: what if it is not found?
+    fun addNewMeal(mealPlanId: Int, name: String, weekDayIso: Int): MealPlanWithMealsDto {
         val mealPlan = mealPlanRepository.findByIdOrNull(mealPlanId)
         requireNotNull(mealPlan)
 
@@ -49,33 +59,40 @@ class MealPlanService(
             mealRepository.findByName(name)
         }
 
-        mealPlan.addMeal(createdMeal)
+        mealPlan.addMeal(createdMeal, weekDayIso)
         mealPlanRepository.save(mealPlan)
 
         return mealPlan.toDto()
     }
 
-    private fun MealPlan.meals(): List<Meal>? {
-        return this.mealRefs.map {
-            mealRepository.findByIdOrNull(it.mealId) ?: return null
-        }
-    }
-
     fun MealPlan.toDto(): MealPlanWithMealsDto {
-        val meals = this.meals() ?: throw IllegalStateException("Bad mealrefs")
+        val mealsDto = meals.map {
+            val meal = mealRepository.findById(it.meal).get()
+            MealDto(meal.id!!, meal.name, it.weekdayIso)
+        }
 
         return MealPlanWithMealsDto(
-            id!!,
-            weekNumber,
-            year,
-            meals
+            id = id!!,
+            weekNumber = weeknumber,
+            year = year,
+            meals = mealsDto
         )
     }
+
+    fun addMeals(id: Int, newMealToPlanRequest: NewMealsToPlan): MealPlanWithMealsDto {
+        TODO("Not yet implemented")
+    }
 }
+
+data class MealDto(
+    val id: Int,
+    val name: String,
+    val weekDayIso: Int
+)
 
 data class MealPlanWithMealsDto(
     val id: Int,
     val weekNumber: Int,
     val year: Int,
-    val meals: List<Meal>
+    val meals: List<MealDto>
 )

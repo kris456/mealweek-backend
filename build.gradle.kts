@@ -20,12 +20,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation( "org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("junit")
     }
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:postgresql:42.2.18")
     implementation("org.flywaydb:flyway-core")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -35,8 +36,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 
     implementation("com.auth0:java-jwt:4.2.2")
-    testImplementation("io.zonky.test:embedded-database-spring-test:2.1.1")
-    testImplementation("io.zonky.test:embedded-postgres:2.0.0")
+    testImplementation("io.zonky.test:embedded-database-spring-test:2.2.0")
+    testImplementation("io.zonky.test:embedded-postgres:2.0.3")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -55,3 +56,4 @@ tasks.withType<BootBuildImage>{
 }
 
 version = "0.1.0"
+group= "no.krismobchr"

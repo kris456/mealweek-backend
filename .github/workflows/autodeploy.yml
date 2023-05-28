@@ -28,8 +28,12 @@ jobs:
             -   name: Setup Gradle
                 uses: gradle/gradle-build-action@v2
 
-            -   name: Run build with Gradle Wrapper
+            -   name: Test
+                run: ./gradlew test
+
+            -   name: Build native image
                 run: ./gradlew bootBuildImage
+
             -   name: Set Image Tag Version
                 run: echo "TAG_VERSION=$( ./gradlew properties -q | grep "^version:" | awk '{print $2}')" >> $GITHUB_ENV
 

@@ -1,7 +1,6 @@
 package dev.krismoc.mealer
 
 import dev.krismoc.mealer.security.MealerUserDetailsService
-import dev.krismoc.mealer.service.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager

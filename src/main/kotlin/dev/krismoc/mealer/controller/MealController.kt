@@ -14,24 +14,24 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import dev.krismoc.mealer.repository.Meal
-import dev.krismoc.mealer.service.MealService
+import dev.krismoc.mealer.service.UserMealService
 
 @RestController
 @RequestMapping("/api/v1/meals")
 class MealController(
-    private val mealService: MealService
+    private val userMealService: UserMealService
 ) {
     @GetMapping
     fun getAllMeals(
         @RequestParam(required = false) weekNumber: Int?,
         @RequestParam(required = false) onlyHistorical: Boolean?
     ): List<MealResource> {
-        return mealService.getAllMeals().map { it.toResource() }
+        return userMealService.getAllMeals().map { it.toResource() }
     }
 
     @GetMapping("/{id}")
     fun getMealById(@PathVariable id: Int): ResponseEntity<MealResource> {
-        return mealService.getMealById(id)?.toResource()?.let {
+        return userMealService.getMealById(id)?.toResource()?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
     }
@@ -39,12 +39,12 @@ class MealController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createNewMeal(@RequestBody newMealRequest: NewMealRequest): MealResource {
-        return mealService.createNewMeal(newMealRequest.name).toResource()
+        return userMealService.createNewMeal(newMealRequest.name).toResource()
     }
 
     @PutMapping("/{id}")
     fun updateMeal(@PathVariable id: Int, @RequestBody updateMealRequest: UpdateMealRequest): ResponseEntity<MealResource> {
-        val meal = mealService.updateMeal(id, updateMealRequest.name)
+        val meal = userMealService.updateMeal(id, updateMealRequest.name)
         return meal?.let {
             ResponseEntity.ok(it.toResource())
         } ?: ResponseEntity.notFound().build()
@@ -52,7 +52,7 @@ class MealController(
 
     @DeleteMapping("/{id}")
     fun deleteMeal(@PathVariable id: Int) {
-        mealService.deleteMeal(id)
+        userMealService.deleteMeal(id)
     }
 }
 

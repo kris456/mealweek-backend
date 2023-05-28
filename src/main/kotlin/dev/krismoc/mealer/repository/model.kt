@@ -15,7 +15,7 @@ data class ShoppingList(
     @JsonIgnore
     @Id
     val id: Int? = null,
-    val weekNumber: Int,
+    val weeknumber: Int,
     val year: Int,
 
     @Column("shopping_list_id")
@@ -68,14 +68,15 @@ data class Meal(
     val modifiedBy: Int? = null
 )
 
-@Table("meal_plan")
+@Table("mealplan")
 data class MealPlan(
     @Id
     val id: Int? = null,
 
-    val weekNumber: Int,
+    val weeknumber: Int,
     val year: Int,
-    val mealRefs: MutableSet<MealRef>,
+
+    val meals: MutableSet<MealPlanMeals> = HashSet(),
 
     @CreatedDate
     val createdDate: LocalDateTime? = null,
@@ -87,14 +88,29 @@ data class MealPlan(
     @LastModifiedBy
     val modifiedBy: Int? = null
 ) {
-    fun addMeal(meal: Meal) {
-        mealRefs.add(MealRef(meal.id!!))
+    fun addMeal(meal: Meal, weekdayIso: Int){
+        val mealPlanMeals = MealPlanMeals( id!!, meal.id!!,weekdayIso )
+        meals.add( mealPlanMeals )
     }
 }
 
-@Table("meaPlan_meals")
-data class MealRef(
-    val mealId: Int
+@Table("mealplan_meals")
+data class MealPlanMeals(
+    val mealplan: Int,
+
+    val meal: Int,
+    val weekdayIso: Int,
+
+    @CreatedDate
+    val createdDate: LocalDateTime? = null,
+    @LastModifiedDate
+    val modifiedDate: LocalDateTime? = null,
+
+    @CreatedBy
+    val createdBy: Int? = null,
+    @LastModifiedBy
+    val modifiedBy: Int? = null
+
 )
 
 data class UserInfo(

@@ -12,7 +12,7 @@ class ShoppingListService(
     private val shoppingItemRepository: ShoppingItemRepository
 ) {
     fun getShoppingListByYearAndWeek(year: Int, weekNumber: Int): List<ShoppingList> {
-        return shoppingListRepository.findByWeekNumberAndYear(weekNumber, year)
+        return shoppingListRepository.findByWeeknumberAndYear(weekNumber, year)
     }
 
     fun getShoppingListByYear(year: Int): List<ShoppingList> {
@@ -25,7 +25,7 @@ class ShoppingListService(
 
     fun createNewShoppingList(weekNumber: Int, year: Int): ShoppingList {
         val newShoppinglist = ShoppingList(
-            weekNumber = weekNumber,
+            weeknumber = weekNumber,
             year = year
         )
         return shoppingListRepository.save(newShoppinglist)
