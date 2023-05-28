@@ -23,7 +23,7 @@ jobs:
             REGISTRY: ghcr.io
             IMAGE_NAME: ${{ github.repository }}
         steps:
-            -   uses: actions/action@v1
+            -   uses: mealweek-backend/action@v1
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
 
