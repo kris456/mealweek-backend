@@ -50,18 +50,14 @@ class AuthController(val userService: UserService, val jwtUtil: JWTUtil, val aut
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
 
-        // TODO: this is not necessary. Userdetailsservice should be implemented
-        val user = userService.getUser(userCredentialsPayload.email)
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-
         val token = jwtUtil.generateToken(userCredentialsPayload.email)
 
-        return user.toResource(token)
+        return UserResource(userCredentialsPayload.email, token)
             .okResponse()
     }
 
     fun UserDto.toResource(token: String): UserResource {
-        return UserResource(email, token, createdDate)
+        return UserResource(email, token)
     }
 }
 
@@ -72,8 +68,7 @@ data class UserCredentialsPayload(
 
 data class UserResource(
     val email: String,
-    val token: String,
-    val createdDate: LocalDateTime?
+    val token: String
 ) : Resource
 
 fun <T : Resource> T.okResponse(): ResponseEntity<T> {

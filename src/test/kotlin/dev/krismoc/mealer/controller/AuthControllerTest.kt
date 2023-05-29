@@ -52,6 +52,17 @@ class AuthControllerTest {
     }
 
     @Test
+    fun `Should return 401 when password is wrong on login`() {
+        val request = UserCredentialsPayload("valid@gmail.com", "wrongassword")
+        mockMvc.post("/api/v1/auth/login") {
+            contentType = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(request)
+        }.andExpect {
+            status { isUnauthorized() }
+        }
+    }
+
+    @Test
     fun `Should be able to login user`() {
         val request = UserCredentialsPayload("valid@gmail.com", "verylongsecret")
         mockMvc.post("/api/v1/auth/login") {

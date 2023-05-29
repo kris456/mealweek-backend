@@ -1,35 +1,38 @@
-name: autodeploy
+name: Build
 
-on:
-    push:
-        branches: [ 'main' ]
+on: [ push ]
 
 jobs:
-    autodeploy:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+
+            -   uses: actions/checkout@v3
+            -   uses: ./.github/actions
+                with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Test
+                run: ./gradlew test --scan
+
+    buildAndPush:
+        needs: [ test ]
+        if: github.ref_name == 'master'
         runs-on: ubuntu-latest
         permissions:
             packages: write
         env:
-            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
             REGISTRY: ghcr.io
+            something: "else"
             IMAGE_NAME: ${{ github.repository }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
         steps:
             -   uses: actions/checkout@v3
-
-            -   uses: graalvm/setup-graalvm@v1
+            -   uses: ./.github/actions
                 with:
-                    version: 'latest'
-                    java-version: '17'
-                    components: 'native-image'
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
+                    token: ${{ secrets.GITHUB_TOKEN }}
 
-            -   name: Setup Gradle
-                uses: gradle/gradle-build-action@v2
-
-            -   name: Run build with Gradle Wrapper
+            -   name: Build native image
                 run: ./gradlew bootBuildImage
+
             -   name: Set Image Tag Version
                 run: echo "TAG_VERSION=$( ./gradlew properties -q | grep "^version:" | awk '{print $2}')" >> $GITHUB_ENV
 
@@ -41,6 +44,20 @@ jobs:
 
             -   name: Push Image to DockerHub
                 run: docker push ghcr.io/kris456/mealweek-backend:latest && docker push ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }}
+
+    autodeploy:
+        runs-on: ubuntu-latest
+        if: github.ref_name == 'master'
+        needs: [ test, buildAndPush ]
+        permissions:
+            packages: write
+        env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: ./.github/actions
+                with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: Install flyctl via https://github.com/superfly/flyctl-actions
                 uses: superfly/flyctl-actions/setup-flyctl@master

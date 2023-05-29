@@ -8,4 +8,5 @@ spring:
 
 mealer:
     jwt:
-        secret: "secret"
+        secret: "aac16664e62c1912af12f091e31b8b46b53000c010196144a8f8898d82f4bf18"
+

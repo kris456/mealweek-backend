@@ -15,15 +15,4 @@ class JWTUtil(@Value("\${mealer.jwt.secret}") private val jwtSecret: String) {
             .withIssuedAt(Instant.now())
             .withIssuer("mealer/krismoc")
             .sign(Algorithm.HMAC256(jwtSecret))
-
-    fun validateTokenAndReturnSubject(token: String): String {
-        val verifier = JWT.require(Algorithm.HMAC256(jwtSecret))
-            .withSubject("User details")
-            .withIssuer("mealer/krismoc")
-            .build()
-
-        return verifier.verify(token)
-            .getClaim("email")
-            .asString()
-    }
 }
