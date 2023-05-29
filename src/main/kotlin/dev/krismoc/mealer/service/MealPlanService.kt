@@ -33,9 +33,12 @@ class MealPlanService(
         return mealPlanRepository.save(newPLan).toDto()
     }
 
-    fun addNewMeal(mealPlanId: Int, name: String, weekDayIso: Int): MealPlanWithMealsDto {
-        val mealPlan = mealPlanRepository.findByIdOrNull(mealPlanId)
-        requireNotNull(mealPlan)
+    fun addNewMeal(mealPlanId: Int, name: String, weekDayIso: Int): MealPlanWithMealsDto? {
+        val mealPlan = mealPlanRepository.findByIdOrNull(mealPlanId) ?: return null
+        val userId = userService.currentUser().id!!
+        if(mealPlan.createdBy != userId) {
+            return null
+        }
 
         val createdMeal = runCatching {
             val meal = Meal(name = name)

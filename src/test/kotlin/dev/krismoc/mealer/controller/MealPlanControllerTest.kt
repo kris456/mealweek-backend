@@ -3,18 +3,9 @@ package dev.krismoc.mealer.controller
 import java.util.stream.Stream
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
-import dev.krismoc.mealer.service.AllFilter
-import dev.krismoc.mealer.service.MealplanFilter
 
 class MealPlanControllerTest : AbstractAuthenticatedControllerTest() {
     @Test
@@ -36,11 +27,78 @@ class MealPlanControllerTest : AbstractAuthenticatedControllerTest() {
     }
 
     @Test
-    fun `Should be able to get all mealplans with all filter`() {
-        mockMvc.get("/api/v1/mealplan") {
+    fun `Should only list own mealplans`() {
+        mockMvc.post("/api/v1/mealplan") {
             contentType = MediaType.APPLICATION_JSON
             content = jacksonObjectMapper().writeValueAsString(NewMealPlanPayload(1, 2023))
 
+            headers {
+                setBearerAuth(otherToken)
+            }
+
+        }.andExpect {
+            status { isCreated() }
+            jsonPath("$.id") { value(100) }
+        }
+
+        mockMvc.get("/api/v1/mealplan") {
+            headers {
+                setBearerAuth(token)
+            }
+
+        }.andExpect {
+            status { isOk()}
+            jsonPath("$.length()"){value(1)}
+            jsonPath("$[0].id") { value(1) }
+        }
+    }
+    @Test
+    fun `Should respond with 404 when mealplan does not exist`() {
+        mockMvc.post("/api/v1/mealplan/2000/meals") {
+            contentType = MediaType.APPLICATION_JSON
+            content = jacksonObjectMapper().writeValueAsString(NewMealToMealPlanRequest("lasagne", 1))
+
+            headers {
+                setBearerAuth(token)
+            }
+
+        }.andExpect {
+            status { isNotFound() }
+        }
+    }
+    @Test
+    fun `Should not be able to add meals to other user mealplan`() {
+        mockMvc.post("/api/v1/mealplan") {
+            contentType = MediaType.APPLICATION_JSON
+            content = jacksonObjectMapper().writeValueAsString(NewMealPlanPayload(1, 2023))
+
+            headers {
+                setBearerAuth(otherToken)
+            }
+
+        }.andExpect {
+            status { isCreated() }
+            jsonPath("$.id") { value(100) }
+        }
+
+        val otherMealPlanId = "100"
+
+        mockMvc.post("/api/v1/mealplan/$otherMealPlanId/meals") {
+            contentType = MediaType.APPLICATION_JSON
+            content = jacksonObjectMapper().writeValueAsString(NewMealToMealPlanRequest("lasagne", 1))
+
+            headers {
+                setBearerAuth(token)
+            }
+
+        }.andExpect {
+            status { isNotFound() }
+        }
+    }
+
+    @Test
+    fun `Should be able to get all mealplans with all filter`() {
+        mockMvc.get("/api/v1/mealplan") {
             headers {
                 setBearerAuth(token)
             }

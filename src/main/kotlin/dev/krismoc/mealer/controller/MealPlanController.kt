@@ -16,6 +16,8 @@ import dev.krismoc.mealer.service.MealPlanWithMealsDto
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 import java.lang.IllegalArgumentException
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseEntity
 
 @RestController
 @RequestMapping("/api/v1/mealplan")
@@ -50,8 +52,14 @@ class MealPlanController(val mealPlanService: MealPlanService) {
     fun addMealsToPlan(
         @PathVariable id: Int,
         @RequestBody newMealToPlanRequest: NewMealToMealPlanRequest
-    ): MealPlanWithMealsDto {
-        return mealPlanService.addNewMeal(id, newMealToPlanRequest.name, newMealToPlanRequest.weekDayIso)
+    ): ResponseEntity<MealPlanWithMealsDto> {
+        val newMeal = mealPlanService.addNewMeal(id, newMealToPlanRequest.name, newMealToPlanRequest.weekDayIso)
+        return if (newMeal != null) {
+            ResponseEntity.status(HttpStatus.CREATED).body(newMeal)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+
     }
 }
 
