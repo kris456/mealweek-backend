@@ -59,26 +59,7 @@ data class NewMealToMealPlanRequest(
     val name: String,
     val weekDayIso: Int
 )
-data class NewMealsToPlan(
-    val mondayMealId: Int,
-    val tuesdayMealId: Int,
-    val wednesdayMealId: Int,
-    val thursdayMealId: Int,
-    val fridayMealId: Int,
-    val saturdayMealId: Int,
-    val sundayMealId: Int,
-)
 data class NewMealPlanPayload(
     val weekNumber: Int,
     val year: Int
 )
-
-
-// What to do with mealplans?
-// Is it optimal to have weeks?
-//
-// Suggestion frontend handles multiple weeks, but backend enforces week based plans
-// It is possible to abstract week based plans into something else in frontend if the need arises
-//
-// Changes:
-// Add days

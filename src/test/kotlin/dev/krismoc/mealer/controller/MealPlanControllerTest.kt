@@ -1,12 +1,20 @@
 package dev.krismoc.mealer.controller
 
+import java.util.stream.Stream
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import dev.krismoc.mealer.service.AllFilter
+import dev.krismoc.mealer.service.MealplanFilter
 
 class MealPlanControllerTest : AbstractAuthenticatedControllerTest() {
     @Test
@@ -44,11 +52,6 @@ class MealPlanControllerTest : AbstractAuthenticatedControllerTest() {
             jsonPath("$[0].weekNumber") { value(1) }
             jsonPath("$[0].year") { value(2022) }
         }
-    }
-
-    @Test
-    fun `Should be able to get mealplans by filters`() {
-
     }
 
     @Test

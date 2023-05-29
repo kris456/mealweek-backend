@@ -50,14 +50,9 @@ class AuthController(val userService: UserService, val jwtUtil: JWTUtil, val aut
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
 
-        // TODO: this is not necessary. Userdetailsservice should be implemented
-        // TODO: Can this be remove and is it covered by tests?
-        val user = userService.getUser(userCredentialsPayload.email)
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-
         val token = jwtUtil.generateToken(userCredentialsPayload.email)
 
-        return user.toResource(token)
+        return UserResource(userCredentialsPayload.email, token)
             .okResponse()
     }
 

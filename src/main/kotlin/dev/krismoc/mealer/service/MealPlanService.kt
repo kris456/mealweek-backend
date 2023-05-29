@@ -1,6 +1,5 @@
 package dev.krismoc.mealer.service
 
-import dev.krismoc.mealer.controller.NewMealsToPlan
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -9,20 +8,6 @@ import dev.krismoc.mealer.repository.MealPlan
 import dev.krismoc.mealer.repository.MealPlanRepository
 import dev.krismoc.mealer.repository.MealRepository
 
-fun <T> Result<T>.getOrElseReturnIfDuplicate(fn: () -> T): T =
-    getOrElse {
-        when (it.cause) {
-            is DuplicateKeyException -> fn()
-            else -> throw it
-        }
-    }
-
-sealed class MealplanFilter
-
-object AllFilter : MealplanFilter()
-data class ByWeek(val weekNumber: Int): MealplanFilter()
-data class ByYear(val year: Int) : MealplanFilter()
-data class ByWeekAndYear(val weekNumber: Int, val year: Int): MealplanFilter()
 
 @Service
 class MealPlanService(
@@ -78,10 +63,6 @@ class MealPlanService(
             meals = mealsDto
         )
     }
-
-    fun addMeals(id: Int, newMealToPlanRequest: NewMealsToPlan): MealPlanWithMealsDto {
-        TODO("Not yet implemented")
-    }
 }
 
 data class MealDto(
@@ -96,3 +77,18 @@ data class MealPlanWithMealsDto(
     val year: Int,
     val meals: List<MealDto>
 )
+
+fun <T> Result<T>.getOrElseReturnIfDuplicate(fn: () -> T): T =
+    getOrElse {
+        when (it.cause) {
+            is DuplicateKeyException -> fn()
+            else -> throw it
+        }
+    }
+
+sealed class MealplanFilter
+
+object AllFilter : MealplanFilter()
+data class ByWeek(val weekNumber: Int): MealplanFilter()
+data class ByYear(val year: Int) : MealplanFilter()
+data class ByWeekAndYear(val weekNumber: Int, val year: Int): MealplanFilter()
