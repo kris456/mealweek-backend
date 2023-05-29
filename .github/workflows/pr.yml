@@ -1,14 +1,24 @@
-name: pr-review
+name: Code Review
+
+permissions:
+    contents: read
+    pull-requests: write
+
 on:
     pull_request:
-        types: [opened, synchronize]
+        types: [opened, reopened, synchronize]
+
 jobs:
-    review:
-        name: ChatGPT code review
+    test:
+        # if: ${{ contains(github.event.*.labels.*.name, 'gpt review') }} # Optional; to run only when a label is attached
         runs-on: ubuntu-latest
         steps:
-            - uses: agogear/chatgpt-pr-review@0.0.2
-              with:
-                  openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  github_pr_id: ${{ github.event.number }}
+            - uses: anc95/ChatGPT-CodeReview@main
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  # Optional
+                  LANGUAGE: English
+                  OPENAI_API_ENDPOINT: https://api.openai.com/v1
+                  top_p: 1
+                  temperature: 1
