@@ -62,7 +62,7 @@ class AuthController(val userService: UserService, val jwtUtil: JWTUtil, val aut
     }
 
     fun UserDto.toResource(token: String): UserResource {
-        return UserResource(email, token, createdDate)
+        return UserResource(email, token)
     }
 }
 
@@ -73,8 +73,7 @@ data class UserCredentialsPayload(
 
 data class UserResource(
     val email: String,
-    val token: String,
-    val createdDate: LocalDateTime?
+    val token: String
 ) : Resource
 
 fun <T : Resource> T.okResponse(): ResponseEntity<T> {
