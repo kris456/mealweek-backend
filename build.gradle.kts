@@ -1,12 +1,12 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    id("org.springframework.boot") version "3.0.4"
+    id("org.springframework.boot") version "3.1.0"
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.spring") version "1.7.22"
-    id("org.graalvm.buildtools.native") version "0.9.19"
+    id("org.graalvm.buildtools.native") version "0.9.22"
+    id( "com.github.ben-manes.versions") version "0.46.0"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -26,7 +26,7 @@ dependencies {
     }
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    runtimeOnly("org.postgresql:postgresql:42.2.18")
+    runtimeOnly("org.postgresql:postgresql:42.6.0")
     implementation("org.flywaydb:flyway-core")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -35,9 +35,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 
-    implementation("com.auth0:java-jwt:4.2.2")
-    testImplementation("io.zonky.test:embedded-database-spring-test:2.2.0")
-    testImplementation("io.zonky.test:embedded-postgres:2.0.3")
+    implementation("com.auth0:java-jwt:4.4.0")
+    testImplementation("io.zonky.test:embedded-database-spring-test:2.3.0")
+    testImplementation("io.zonky.test:embedded-postgres:2.0.4")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
