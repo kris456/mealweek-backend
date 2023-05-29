@@ -63,4 +63,4 @@ jobs:
                 uses: superfly/flyctl-actions/setup-flyctl@master
 
             -   name: Deploy to fly.io
-                run: flyctl deploy --image ghcr.io/kris456/mealweek-backend:${{ env.TAG_VERSION }} -t ${{ env.FLY_API_TOKEN }}
+                run: flyctl deploy --image ghcr.io/kris456/mealweek-backend:latest -t ${{ env.FLY_API_TOKEN }}
